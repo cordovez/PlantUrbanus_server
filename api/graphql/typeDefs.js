@@ -38,18 +38,20 @@ module.exports = gql`
     email: String
     password: String
     token: String
+    plants: [Plant!]
   }
 
   type Plant {
     id: ID!
-    commonName: String
+    commonName: String!
     datePurchased: Date
     substrate: Substrate
     healthRating: Int
     scientificName: String
     familyName: String
     public_id: String
-    owner: [Owner!]
+    owner_id: String
+    owner: Owner
   }
 
   type Cutting {
@@ -71,19 +73,16 @@ module.exports = gql`
   }
 
   # *** Mutations and their Inputs Types *** #
-  input OwnerInput {
-    userName: String!
-    email: String!
-  }
 
   input PlantInput {
     commonName: String!
     public_id: String
-    owner: [OwnerInput]
+    #owner_id: String!
+    owner: String!
   }
 
   type Mutation {
-    addPlant(newPlant: PlantInput): [Plant]
+    addPlant(plantInput: PlantInput): Plant
     #addOwner(newOwner: OwnerInput): Owner
     registerOwner(registerInput: RegisterInput): Owner
     loginOwner(loginInput: LoginInput): Owner

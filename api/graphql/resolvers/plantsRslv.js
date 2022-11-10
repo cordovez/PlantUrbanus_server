@@ -2,15 +2,17 @@ const { GraphQLScalarType } = require("graphql");
 
 // Models
 const Plant = require("../../models/Plant");
-// const Owner = require("../../models/Owner");
-// const Propagation = require("../../models/Propagation");
+const Owner = require("../../models/Owner");
+const Propagation = require("../../models/Propagation");
 
 module.exports = {
   // *** Query Resolvers *** //
   Query: {
     plants: async (obj, args, context) => {
       try {
-        return await Plant.find();
+        const plants = await Plant.find().populate("owner");
+        console.log(plants);
+        return plants;
       } catch (error) {
         console.log(error.message);
         return [];
@@ -24,62 +26,27 @@ module.exports = {
         return [];
       }
     },
-    //   owners: async (obj, args, context) => {
-    //     try {
-    //       return await Owner.find();
-    //     } catch (error) {
-    //       console.log(error.message);
-    //       return [];
-    //     }
-    //   },
-    //   owner: async (obj, { id }, context) => {
-    //     try {
-    //       return await Owner.findById(id);
-    //     } catch (error) {
-    //       console.log(error.message);
-    //       return [];
-    //     }
-    //   },
+  },
+  // *** Relational Objects Resolvers *** //
+  Plant: {
+    owner: (parent, args, context) => {
+      return Owner.findById(parent.owner);
+    },
   },
 
   // *** Mutation Resolvers *** //
   Mutation: {
-    addPlant: async (obj, { newPlant }, { userId }) => {
-      try {
-        if (userId) {
-          const createdPlant = await Plant.create({
-            ...newPlant,
-          });
-          return [createdPlant];
-        }
-      } catch (error) {
-        console.log("Plant was not added: ", error.message);
-        return [];
-      }
-    },
-    //   addOwner: (obj, { newOwner }, context) => {
-    //     try {
-    //       const createdOwner = Owner.create({
-    //         ...newOwner,
-    //       });
-    //       return createdOwner;
-    //     } catch (error) {
-    //       console.log("Owner was not added: ", error.message);
-    //       return [];
-    //     }
-    //   },
-  },
-
-  // *** Relational Objects Resolvers *** //
-  Plant: {
-    owner: (obj, args, context) => {
-      // DB call:
-      // temporary:
-      const ownerIds = obj.owner.map((owner) => owner.id);
-      const filteredOwners = owners.filter((owner) => {
-        return ownerIds.includes(owner.id);
+    addPlant: async (_, { plantInput: { commonName, owner } }) => {
+      // const findOwner = await Owner.findById({ owner });
+      console.log(commonName);
+      const newPlant = await Plant.create({
+        commonName,
+        owner,
       });
-      return filteredOwners;
+
+      return newPlant.populate("owner");
+
+      // const res = await newPlant.save();
     },
   },
 
