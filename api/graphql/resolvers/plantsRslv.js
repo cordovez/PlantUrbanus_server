@@ -4,6 +4,13 @@ const { GraphQLScalarType } = require("graphql");
 const Plant = require("../../models/Plant");
 const Owner = require("../../models/Owner");
 const Propagation = require("../../models/Propagation");
+const { updateOne } = require("../../models/Owner");
+
+// Mongo
+const { MongoClient } = require("mongodb");
+// Replace the uri string with your MongoDB deployment's connection string.
+const uri = process.env.MONGODB_URI;
+const client = new MongoClient(uri);
 
 module.exports = {
   // *** Query Resolvers *** //
@@ -11,7 +18,6 @@ module.exports = {
     plants: async (obj, args, context) => {
       try {
         const plants = await Plant.find().populate("owner");
-        console.log(plants);
         return plants;
       } catch (error) {
         console.log(error.message);
@@ -20,33 +26,55 @@ module.exports = {
     },
     plant: async (obj, { id }, context) => {
       try {
-        return await Plant.findById(id);
+        const plant = await Plant.findById(id).populate({
+          path: "owner",
+          populate: { path: "plants" },
+        });
+        console.log(plant);
+        return plant;
       } catch (error) {
         console.log(error.message);
         return [];
       }
     },
   },
-  // *** Relational Objects Resolvers *** //
-  Plant: {
-    owner: (parent, args, context) => {
-      return Owner.findById(parent.owner);
-    },
-  },
 
   // *** Mutation Resolvers *** //
   Mutation: {
     addPlant: async (_, { plantInput: { commonName, owner } }) => {
-      // const findOwner = await Owner.findById({ owner });
-      console.log(commonName);
       const newPlant = await Plant.create({
         commonName,
         owner,
       });
+      async function run() {
+        try {
+          const database = client.db("PlantUrbanus");
+          const owners = database.collection("owners");
 
+          const whichOwner = { _id: newPlant.owner };
+          const updateOwner = {
+            $push: {
+              plants: newPlant._id,
+            },
+          };
+          const result = await owners.updateOne(whichOwner, updateOwner);
+          console.log("whichOwner: ", whichOwner);
+          console.log("result: ", result);
+          console.log(
+            `${result.matchedCount} document(s) matched the filter, updated ${result.modifiedCount} documents`
+          );
+        } finally {
+          // await client.close();
+        }
+      }
+      run().catch(console.dir);
       return newPlant.populate("owner");
-
-      // const res = await newPlant.save();
+    },
+  },
+  // *** Embedded Objects Resolvers *** //
+  Plant: {
+    owner: (parent, args, context) => {
+      return Owner.findById(parent.owner);
     },
   },
 

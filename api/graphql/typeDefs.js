@@ -30,9 +30,10 @@ module.exports = gql`
     email: String
     password: String
   }
+
   type Owner {
     id: ID!
-    userName: String!
+    userName: String
     firstName: String
     lastName: String
     email: String
@@ -42,15 +43,14 @@ module.exports = gql`
   }
 
   type Plant {
-    id: ID!
-    commonName: String!
+    id: ID
+    commonName: String
     datePurchased: Date
     substrate: Substrate
     healthRating: Int
     scientificName: String
     familyName: String
     public_id: String
-    owner_id: String
     owner: Owner
   }
 
@@ -77,14 +77,21 @@ module.exports = gql`
   input PlantInput {
     commonName: String!
     public_id: String
-    #owner_id: String!
     owner: String!
+  }
+  input UpdateOwnerInput {
+    id: ID!
+    firstName: String
+    lastName: String
+    email: String
+    plants: [ID]
   }
 
   type Mutation {
     addPlant(plantInput: PlantInput): Plant
-    #addOwner(newOwner: OwnerInput): Owner
     registerOwner(registerInput: RegisterInput): Owner
+    updateOwner(updateOwnerInput: UpdateOwnerInput): Owner!
+    deleteOwner(id: ID!): String
     loginOwner(loginInput: LoginInput): Owner
   }
 `;

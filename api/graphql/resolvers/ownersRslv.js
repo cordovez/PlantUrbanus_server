@@ -5,13 +5,14 @@ const jwt = require("jsonwebtoken");
 
 // Models
 const Owner = require("../../models/Owner");
+const Plant = require("../../models/Plant");
 
 module.exports = {
   // *** Query Resolvers *** //
   Query: {
     owners: async (obj, args, context) => {
       try {
-        return await Owner.find();
+        return await Owner.find().populate("plants");
       } catch (error) {
         console.log(error.message);
         return [];
@@ -19,11 +20,23 @@ module.exports = {
     },
     owner: async (obj, { id }, context) => {
       try {
-        return await Owner.findById(id);
+        const owner = await Owner.findById(id).populate("plants");
+        console.log(owner);
+        return owner;
       } catch (error) {
         console.log(error.message);
         return [];
       }
+    },
+  },
+
+  // *** Embedded Objects Resolvers *** //
+  Owner: {
+    plants: (parent, args) => {
+      const match = Plant.find((plant) => {
+        parent.id === plant.owner;
+        return match.populate("plants");
+      });
     },
   },
 
@@ -95,6 +108,28 @@ module.exports = {
       } else {
         // if user doesn't exist return error.
         throw new ApolloError("incorrect credentials", "INCORRECT_CREDENTIALS");
+      }
+    },
+
+    async updateOwner(parent, { updateOwnerInput }, context, info) {
+      const updatedOwner = await Owner.findByIdAndUpdate(
+        updateOwnerInput.id,
+        updateOwnerInput,
+        { new: true }
+      );
+      return updatedOwner;
+    },
+
+    async deleteOwner(_, { id }) {
+      try {
+        const userExists = await Owner.findById(id);
+        if (userExists) {
+          await Owner.findByIdAndRemove(id);
+          return "User has been removed from the database";
+        }
+        return "user is not in the database";
+      } catch (error) {
+        console.log(error.message);
       }
     },
   },

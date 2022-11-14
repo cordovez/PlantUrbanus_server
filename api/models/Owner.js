@@ -26,6 +26,7 @@ const OwnerSchema = new mongoose.Schema(
     avatar: {
       type: String,
     },
+    plants: [{ type: mongoose.Schema.Types.ObjectId, ref: "Plant" }],
   },
   { timestamps: true }
 );
