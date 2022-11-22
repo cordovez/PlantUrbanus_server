@@ -7,8 +7,7 @@ module.exports = gql`
     SOIL
     LECA
     PON
-    AROID
-    MIX
+    CUSTOM
     SPHAGNUM
   }
 
@@ -40,6 +39,7 @@ module.exports = gql`
     password: String
     token: String
     plants: [Plant!]
+    avatar: String
   }
 
   type Plant {
@@ -52,6 +52,7 @@ module.exports = gql`
     familyName: String
     public_id: String
     owner: Owner
+    notes: String
   }
 
   type Cutting {
@@ -75,7 +76,7 @@ module.exports = gql`
   # *** Mutations and their Inputs Types *** #
 
   input PlantInput {
-    commonName: String!
+    commonName: String
     public_id: String
     owner: String!
   }
@@ -85,10 +86,24 @@ module.exports = gql`
     lastName: String
     email: String
     plants: [ID]
+    avatar: String
+    notes: String
+  }
+
+  input UpdatePlantInput {
+    id: ID!
+    commonName: String
+    datePurchased: Date
+    substrate: String
+    healthRating: Int
+    scientificName: String
+    familyName: String
   }
 
   type Mutation {
     addPlant(plantInput: PlantInput): Plant
+    updatePlant(updatePlantInput: UpdatePlantInput): Plant
+    deletePlant(id: ID!): Plant
     registerOwner(registerInput: RegisterInput): Owner
     updateOwner(updateOwnerInput: UpdateOwnerInput): Owner!
     deleteOwner(id: ID!): String

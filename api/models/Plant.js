@@ -4,7 +4,7 @@ const PlantSchema = new mongoose.Schema(
   {
     commonName: {
       type: String,
-      required: true,
+      // required: true,
     },
     datePurchased: Date,
     substrate: String,
@@ -12,6 +12,7 @@ const PlantSchema = new mongoose.Schema(
     scientificName: String,
     familyName: String,
     public_id: String,
+    notes: String,
 
     owner: { type: mongoose.Schema.Types.ObjectId, ref: "Owner" },
   },

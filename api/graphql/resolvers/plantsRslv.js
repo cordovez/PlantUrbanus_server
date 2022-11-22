@@ -8,6 +8,7 @@ const { updateOne } = require("../../models/Owner");
 
 // Mongo
 const { MongoClient } = require("mongodb");
+const cloudinary = require("../../../config/cloudinary");
 // Replace the uri string with your MongoDB deployment's connection string.
 const uri = process.env.MONGODB_URI;
 const client = new MongoClient(uri);
@@ -30,7 +31,6 @@ module.exports = {
           path: "owner",
           populate: { path: "plants" },
         });
-        console.log(plant);
         return plant;
       } catch (error) {
         console.log(error.message);
@@ -41,11 +41,13 @@ module.exports = {
 
   // *** Mutation Resolvers *** //
   Mutation: {
-    addPlant: async (_, { plantInput: { commonName, owner } }) => {
+    addPlant: async (_, { plantInput: { commonName, owner, public_id } }) => {
       const newPlant = await Plant.create({
         commonName,
         owner,
+        public_id,
       });
+      // function to reference the 'owners' collection and ad the owner as a variable in the mutation
       async function run() {
         try {
           const database = client.db("PlantUrbanus");
@@ -68,7 +70,29 @@ module.exports = {
         }
       }
       run().catch(console.dir);
+
       return newPlant.populate("owner");
+    },
+    async updatePlant(_, { updatePlantInput }, context, info) {
+      const updatedPlant = await Plant.findByIdAndUpdate(
+        updatePlantInput.id,
+        updatePlantInput,
+        { new: true }
+      );
+      return updatedPlant;
+    },
+    async deletePlant(_, { id }) {
+      try {
+        const plantExists = await Plant.findById(id);
+        if (plantExists) {
+          await Plant.findByIdAndRemove(id);
+          return "Plant has been removed from the database";
+        } else {
+          return "Plant was not found in the database";
+        }
+      } catch (error) {
+        console.log(error.message);
+      }
     },
   },
   // *** Embedded Objects Resolvers *** //

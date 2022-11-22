@@ -21,7 +21,7 @@ module.exports = {
     owner: async (obj, { id }, context) => {
       try {
         const owner = await Owner.findById(id).populate("plants");
-        console.log(owner);
+        // console.log(owner);
         return owner;
       } catch (error) {
         console.log(error.message);
