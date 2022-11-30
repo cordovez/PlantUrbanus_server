@@ -11,7 +11,7 @@
   "author": "JC Cordovez-Mantilla",
   "license": "ISC",
   "dependencies": {
-    "@apollo/server": "^4.0.1",
+    "@apollo/server": "^4.2.2",
     "apollo-server": "^3.10.3",
     "bcrypt": "^5.1.0",
     "bcryptjs": "^2.4.3",

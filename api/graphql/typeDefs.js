@@ -38,12 +38,12 @@ module.exports = gql`
     email: String
     password: String
     token: String
-    plants: [Plant!]
+    plants: [Plant]
     avatar: String
   }
 
   type Plant {
-    id: ID
+    id: ID!
     commonName: String
     datePurchased: Date
     substrate: Substrate
@@ -53,6 +53,7 @@ module.exports = gql`
     public_id: String
     owner: Owner
     notes: String
+    createdAt: String
   }
 
   type Cutting {
@@ -82,12 +83,12 @@ module.exports = gql`
   }
   input UpdateOwnerInput {
     id: ID!
+    userName: String!
     firstName: String
     lastName: String
     email: String
-    plants: [ID]
+    #plants: [ID]
     avatar: String
-    notes: String
   }
 
   input UpdatePlantInput {
@@ -98,6 +99,7 @@ module.exports = gql`
     healthRating: Int
     scientificName: String
     familyName: String
+    notes: String
   }
 
   type Mutation {

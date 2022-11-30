@@ -1,5 +1,8 @@
 require("dotenv").config();
 
+// for module type imports
+// import {} from "dotenv/config";
+
 // *** Apollo *** //
 
 // Schema
@@ -218,9 +221,12 @@ const server = new ApolloServer({
     };
     return { ...fakeUser };
   },
-  // plugins,
+  // plugins:
 });
 connectDB();
-server.listen({ port: process.env.PORT || 5000 }).then(({ url }) => {
+
+const PORT = 4000;
+
+server.listen({ port: process.env.PORT || PORT }).then(({ url }) => {
   console.log(`server started at ${url}`);
 });
